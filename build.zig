@@ -11,6 +11,13 @@ pub fn build(b: *Builder) void {
     const test_step = b.step("test", "Run library tests");
     test_step.dependOn(&main_tests.step);
 
+    var benchmarks = b.addTest("src/benchmark.zig");
+    benchmarks.setBuildMode(mode);
+    benchmarks.addPackagePath("bench", "lib/zig-bench/bench.zig");
+
+    const benchmark_step = b.step("benchmark", "Run benchmarks");
+    benchmark_step.dependOn(&benchmarks.step);
+
     const example_exe = b.addExecutable("zig-ecs-example", "src/example.zig");
     example_exe.setBuildMode(mode);
 
