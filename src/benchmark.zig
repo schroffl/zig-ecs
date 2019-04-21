@@ -93,5 +93,14 @@ test "Benchmarks" {
 
             a.runWith(&fixed_allocator.allocator) catch unreachable;
         }
+
+        pub fn ArenaAllocator(a: Arg) void {
+            var direct_allocator = std.heap.DirectAllocator.init();
+            var arena_allocator = std.heap.ArenaAllocator.init(&direct_allocator.allocator);
+            defer direct_allocator.deinit();
+            defer arena_allocator.deinit();
+
+            a.runWith(&arena_allocator.allocator) catch unreachable;
+        }
     });
 }
