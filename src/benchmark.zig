@@ -58,7 +58,7 @@ test "Benchmarks" {
                     try manager.signal(entity);
                 }
 
-                var run_i = arg.system_runs;
+                var run_i: u32 = 0;
 
                 while (run_i < arg.system_runs) : (run_i += 1) {
                     manager.runSystems();
