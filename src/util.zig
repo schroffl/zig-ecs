@@ -1,4 +1,5 @@
 const std = @import("std");
+const testing = std.testing;
 const builtin = @import("builtin");
 const assert = std.debug.assert;
 const trait = std.meta.trait;
@@ -31,4 +32,22 @@ pub fn DataOffset(comptime U: type, comptime Tag: @TagType(U)) usize {
         if (@intToEnum(@TagType(U), field.value) == Tag) break offset;
         offset += @sizeOf(@memberType(U, i));
     };
+}
+
+const TestU = union(enum) {
+    Signed16: i16,
+    Unsigned32: u32,
+};
+
+test "Data" {
+    comptime testing.expectEqual(Data(TestU, .Signed16), i16);
+    comptime testing.expectEqual(Data(TestU, .Unsigned32), u32);
+}
+
+test "DataSize" {
+    comptime testing.expectEqual(DataSize(TestU), @sizeOf(i16) + @sizeOf(u32));
+}
+
+test "DataOffset" {
+    comptime testing.expectEqual(DataOffset(TestU, .Unsigned32), @sizeOf(i16));
 }
