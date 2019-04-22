@@ -22,12 +22,12 @@ const TestSystem = struct {
         };
     }
 
-    pub fn process(sys: *Manager.System, entity: *Manager.Entity) void {
+    fn process(sys: *Manager.System, entity: *Manager.Entity) void {
         var self = @fieldParentPtr(TestSystem, "system", sys);
         self.data += entity.get(.Unsigned32).?.*;
     }
 
-    pub fn filter(sys: *Manager.System, entity: Manager.Entity) bool {
+    fn filter(sys: *Manager.System, entity: Manager.Entity) bool {
         return entity.has(.Unsigned32);
     }
 };
