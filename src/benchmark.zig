@@ -16,10 +16,15 @@ const TestSystem = struct {
                 .processFn = process,
                 .filterFn = filter,
                 .afterFn = null,
-                .beforeFn = null,
+                .beforeFn = before,
             },
             .data = 0,
         };
+    }
+
+    fn before(sys: *Manager.System) void {
+        var self = @fieldParentPtr(TestSystem, "system", sys);
+        self.data = 0;
     }
 
     fn process(sys: *Manager.System, entity: *Manager.Entity) void {
@@ -43,10 +48,13 @@ test "Benchmarks" {
                 var manager = Manager.init(allocator);
                 defer manager.deinit();
 
+                var systems = try allocator.alloc(*TestSystem, arg.systems);
                 var system_i: u32 = 0;
+                defer allocator.free(systems);
 
                 while (system_i < arg.systems) : (system_i += 1) {
                     var system = TestSystem.init();
+                    systems[system_i] = &system;
                     try manager.addSystem(&system.system);
                 }
 
@@ -54,15 +62,20 @@ test "Benchmarks" {
 
                 while (entity_i < arg.entities) : (entity_i += 1) {
                     var entity = try manager.spawn();
-                    _ = entity.add(.Unsigned32);
+                    var int = entity.add(.Unsigned32);
+                    int.* = 1;
                     try manager.signal(entity);
                 }
 
                 var run_i: u32 = 0;
+                var systems_result: u32 = 0;
 
                 while (run_i < arg.system_runs) : (run_i += 1) {
                     manager.runSystems();
+                    for (systems) |sys| systems_result += sys.data;
                 }
+
+                std.testing.expectEqual(arg.entities * arg.systems * arg.system_runs, systems_result);
             }
         };
 
