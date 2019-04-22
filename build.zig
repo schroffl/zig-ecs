@@ -1,9 +1,9 @@
 const Builder = @import("std").build.Builder;
+const builtin = @import("builtin");
+const Mode = builtin.Mode;
 
 pub fn build(b: *Builder) void {
     const mode = b.standardReleaseOptions();
-    const lib = b.addStaticLibrary("zig-ecs", "src/main.zig");
-    lib.setBuildMode(mode);
 
     var main_tests = b.addTest("src/main.zig");
     main_tests.setBuildMode(mode);
@@ -25,6 +25,5 @@ pub fn build(b: *Builder) void {
     const example_step = b.step("run-example", "Run the example in src/example.zig");
     example_step.dependOn(&run_example_cmd.step);
 
-    b.default_step.dependOn(&lib.step);
-    b.installArtifact(lib);
+    b.default_step.dependOn(&main_tests.step);
 }
