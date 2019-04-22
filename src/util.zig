@@ -34,6 +34,12 @@ pub fn DataOffset(comptime U: type, comptime Tag: @TagType(U)) usize {
     };
 }
 
+/// TODO Write doc comments
+pub fn ensureCapacity(of: var, capacity: usize) !void {
+    const adjusted = @intToFloat(f32, capacity + 1) * 1.5;
+    try of.ensureCapacity(@floatToInt(usize, adjusted));
+}
+
 const TestU = union(enum) {
     Signed16: i16,
     Unsigned32: u32,

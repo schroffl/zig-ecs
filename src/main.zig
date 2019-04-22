@@ -193,7 +193,8 @@ pub fn Manager(comptime U: type) type {
         /// TODO Write doc comments
         pub fn spawn(self: *Self) !Entity {
             const idx = self.entity_data.count();
-            var ptr = try self.entity_data.addOne();
+            try util.ensureCapacity(&self.entity_data, idx);
+            var ptr = self.entity_data.addOneAssumeCapacity();
 
             ptr.* = EntityData.init();
 

@@ -1,4 +1,5 @@
 const std = @import("std");
+const util = @import("util.zig");
 
 fn getByte(n: usize) usize {
     // This is a faster version of
@@ -124,7 +125,7 @@ pub const Bits = struct {
     /// TODO Write doc comments
     pub fn add(self: *Bits, bit: usize) !void {
         const required = getByte(bit) + 1;
-        if (required > self.data.len) try self.ensureCapacity(required);
+        if (required > self.data.len) try util.ensureCapacity(self, required);
 
         if (self.max_value) |max| {
             if (bit > max) self.max_value = bit;
