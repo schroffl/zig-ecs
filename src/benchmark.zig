@@ -44,7 +44,7 @@ test "Benchmarks" {
             entities: u32,
             system_runs: u32,
 
-            fn runWith(arg: Arg, allocator: *std.mem.Allocator) !void {
+            fn runWith(arg: Arg, allocator: *std.mem.Allocator) !u32 {
                 var manager = Manager.init(allocator);
                 defer manager.deinit();
 
@@ -76,6 +76,8 @@ test "Benchmarks" {
                 }
 
                 std.testing.expectEqual(arg.entities * arg.systems * arg.system_runs, systems_result);
+
+                return systems_result;
             }
         };
 
@@ -88,14 +90,14 @@ test "Benchmarks" {
 
         pub const iterations = 100;
 
-        pub fn DirectAllocator(a: Arg) void {
+        pub fn DirectAllocator(a: Arg) u32 {
             var direct_allocator = std.heap.DirectAllocator.init();
             defer direct_allocator.deinit();
 
-            a.runWith(&direct_allocator.allocator) catch unreachable;
+            return a.runWith(&direct_allocator.allocator) catch unreachable;
         }
 
-        pub fn FixedBufferAllocator(a: Arg) void {
+        pub fn FixedBufferAllocator(a: Arg) u32 {
             var direct_allocator = std.heap.DirectAllocator.init();
             var allocator = &direct_allocator.allocator;
             defer direct_allocator.deinit();
@@ -104,16 +106,16 @@ test "Benchmarks" {
             var fixed_allocator = std.heap.FixedBufferAllocator.init(buffer);
             defer allocator.free(buffer);
 
-            a.runWith(&fixed_allocator.allocator) catch unreachable;
+            return a.runWith(&fixed_allocator.allocator) catch unreachable;
         }
 
-        pub fn ArenaAllocator(a: Arg) void {
+        pub fn ArenaAllocator(a: Arg) u32 {
             var direct_allocator = std.heap.DirectAllocator.init();
             var arena_allocator = std.heap.ArenaAllocator.init(&direct_allocator.allocator);
             defer direct_allocator.deinit();
             defer arena_allocator.deinit();
 
-            a.runWith(&arena_allocator.allocator) catch unreachable;
+            return a.runWith(&arena_allocator.allocator) catch unreachable;
         }
     });
 }
