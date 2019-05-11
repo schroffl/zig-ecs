@@ -46,14 +46,14 @@ const TestU = union(enum) {
 };
 
 test "Data" {
-    comptime testing.expectEqual(Data(TestU, .Signed16), i16);
-    comptime testing.expectEqual(Data(TestU, .Unsigned32), u32);
+    comptime testing.expectEqual(i16, Data(TestU, .Signed16));
+    comptime testing.expectEqual(u32, Data(TestU, .Unsigned32));
 }
 
 test "DataSize" {
-    comptime testing.expectEqual(DataSize(TestU), @sizeOf(i16) + @sizeOf(u32));
+    comptime testing.expectEqual(@sizeOf(i16) + @sizeOf(u32), DataSize(TestU));
 }
 
 test "DataOffset" {
-    comptime testing.expectEqual(DataOffset(TestU, .Unsigned32), @sizeOf(i16));
+    comptime testing.expectEqual(@sizeOf(i16), DataOffset(TestU, .Unsigned32));
 }

@@ -333,5 +333,5 @@ test "Running systems" {
 
     manager.runSystems();
 
-    std.testing.expectEqual(math_system.result, 150);
+    std.testing.expectEqual(u32(150), math_system.result);
 }

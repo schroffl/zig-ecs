@@ -109,7 +109,7 @@ pub fn FixedBits(comptime capacity: usize) type {
 test "FixedBits" {
     var bits = FixedBits(25).init();
 
-    std.testing.expectEqual(bits.data.len, 4);
+    std.testing.expectEqual(4, bits.data.len);
 
     std.testing.expect(!bits.has(17));
     bits.add(17);
