@@ -65,6 +65,24 @@ pub fn FixedBits(comptime capacity: usize) type {
             return checkBit(&self.data, bit);
         }
 
+        /// The function is called unionize, because union is a reserved
+        /// keyword...
+        pub fn unionize(a: *Self, b: Self) void {
+            var i: usize = 0;
+            while (i < data_size) : (i += 1) a.data[i] |= b.data[i];
+        }
+
+        /// TODO Write doc comments
+        pub fn subtract(a: *Self, b: Self) void {
+            var i: usize = 0;
+            while (i < data_size) : (i += 1) a.data[i] &= ~b.data[i];
+        }
+
+        /// TODO Write doc comments
+        pub fn empty(self: *Self) void {
+            std.mem.secureZero(u8, self.data[0..]);
+        }
+
         /// TODO Write doc comments
         pub fn iterate(self: *const Self) Iterator {
             return Iterator{
@@ -95,6 +113,21 @@ test "FixedBits" {
     std.testing.expect(!bits.has(17));
     bits.add(17);
     std.testing.expect(bits.has(17));
+    bits.empty();
+    std.testing.expect(!bits.has(17));
+}
+
+test "FixedBits.unionize" {
+    const S = FixedBits(8);
+    var a = S.init();
+    var b = S.init();
+
+    a.add(5);
+    b.add(2);
+    b.add(5);
+    S.unionize(&a, b);
+    std.testing.expect(a.has(5) and a.has(2));
+    std.testing.expectEqual(u8(0b100100), a.data[0]);
 }
 
 /// A Bit Set that will dynamically allocate memory
