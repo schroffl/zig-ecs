@@ -103,6 +103,16 @@ pub fn FixedBits(comptime capacity: usize) type {
                 } else return null;
             }
         };
+
+        pub fn format(
+            self: Self,
+            comptime fmt: []const u8,
+            context: var,
+            comptime Errors: type,
+            output: fn (@typeOf(context), []const u8) Errors!void,
+        ) Errors!void {
+            try util.formatSet(self, fmt, context, Errors, output);
+        }
     };
 }
 
@@ -239,6 +249,16 @@ pub const Bits = struct {
             } else return null;
         }
     };
+
+    pub fn format(
+        self: Bits,
+        comptime fmt: []const u8,
+        context: var,
+        comptime Errors: type,
+        output: fn (@typeOf(context), []const u8) Errors!void,
+    ) Errors!void {
+        try util.formatSet(self, fmt, context, Errors, output);
+    }
 };
 
 test "Bits" {

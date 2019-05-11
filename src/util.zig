@@ -40,6 +40,28 @@ pub fn ensureCapacity(of: var, capacity: usize) !void {
     try of.ensureCapacity(@floatToInt(usize, adjusted));
 }
 
+pub fn formatSet(
+    self: var,
+    comptime fmt: []const u8,
+    context: var,
+    comptime Errors: type,
+    output: fn (@typeOf(context), []const u8) Errors!void,
+) Errors!void {
+    try output(context, @typeName(@typeOf(self)));
+    try output(context, "{");
+
+    var first: bool = true;
+    var iterator = self.iterate();
+
+    while (iterator.next()) |item| {
+        if (!first) try output(context, ", ");
+        first = false;
+        try std.fmt.formatType(item, "", context, Errors, output);
+    }
+
+    try output(context, "}");
+}
+
 const TestU = union(enum) {
     Signed16: i16,
     Unsigned32: u32,
