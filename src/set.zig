@@ -96,10 +96,11 @@ pub fn FixedBits(comptime capacity: usize) type {
             count: usize,
 
             pub fn next(it: *Iterator) ?usize {
-                if (it.count >= capacity) return null;
-                const val = it.count;
-                it.count += 1;
-                return val;
+                return while (it.count <= capacity) {
+                    const val = it.count;
+                    it.count += 1;
+                    if (it.set.has(val)) break val;
+                } else return null;
             }
         };
     };
