@@ -65,9 +65,9 @@ const RenderSystem = struct {
 };
 
 pub fn setName(allocator: *std.mem.Allocator, entity: *Entity, name: var) !void {
-    var name_ref = entity.add(.Name);
-    name_ref.* = try allocator.alloc(u8, name.len);
-    std.mem.copy(u8, name_ref.*, name);
+    var buf = try allocator.alloc(u8, name.len);
+    std.mem.copy(u8, buf, name);
+    entity.set(.Name, name);
 }
 
 pub fn main() !void {
@@ -82,11 +82,9 @@ pub fn main() !void {
     try universe.addSystem(&render_system);
 
     var player = try universe.spawn();
-    var transform = player.add(.Transform);
 
+    player.set(.Transform, Transform{ .x = 42, .y = 45 });
     try setName(allocator, &player, "John");
-    transform.x = 42;
-    transform.y = 10;
 
     try universe.signal(player);
 

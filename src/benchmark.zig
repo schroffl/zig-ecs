@@ -62,8 +62,7 @@ test "Benchmarks" {
 
                 while (entity_i < arg.entities) : (entity_i += 1) {
                     var entity = try manager.spawn();
-                    var int = entity.add(.Unsigned32);
-                    int.* = 1;
+                    entity.set(.Unsigned32, 1);
                     try manager.signal(entity);
                 }
 
