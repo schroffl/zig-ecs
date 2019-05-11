@@ -27,6 +27,7 @@ pub fn build(b: *Builder) void {
         t.setBuildMode(test_mode);
         t.addPackagePath("bench", "lib/zig-bench/bench.zig");
         t.setNamePrefix(mode_str ++ " ");
+        t.setFilter("Benchmark");
 
         const t_step = b.step("benchmark-" ++ mode_str, "Run benchmarks in " ++ mode_str);
         t_step.dependOn(&t.step);
