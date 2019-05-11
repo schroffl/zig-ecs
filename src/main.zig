@@ -38,22 +38,6 @@ pub fn Manager(comptime U: type) type {
                 return self.data.has(Tag);
             }
 
-            // TODO When removing a component from an entity we currently
-            // no longer have the ability to safely unwrap the .get optional
-            // in a systems processFn.
-            //
-            //   This could be solved by having a separate removal set in
-            // the EntityData with which we track the comoponents to be
-            // remove. The actual unsetting then only happens when the
-            // user calls Manager.signal on the entity, after which the
-            // set can be cleared again.
-            //
-            //   One downside to this is that we have two FixedBit sets in
-            // EntityData, which increases the size. This shouldn't be
-            // too much of a issue though, because the main memory
-            // consumption will come from the actual component data
-            // anyways.
-
             /// TODO Write doc comments
             pub fn remove(self: *Entity, comptime Tag: TagT) void {
                 return self.data.remove(Tag);
