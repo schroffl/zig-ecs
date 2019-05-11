@@ -67,7 +67,7 @@ const RenderSystem = struct {
 pub fn setName(allocator: *std.mem.Allocator, entity: *Entity, name: var) !void {
     var buf = try allocator.alloc(u8, name.len);
     std.mem.copy(u8, buf, name);
-    entity.set(.Name, name);
+    entity.set(.Name, buf);
 }
 
 pub fn main() !void {
