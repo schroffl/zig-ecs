@@ -41,7 +41,12 @@ pub fn Manager(comptime U: type) type {
             }
 
             /// Get a pointer to the component data of an entity
-            pub fn get(self: *Entity, comptime Component: TagT) ?*Data(Component) {
+            pub fn get(self: Entity, comptime Component: TagT) ?Data(Component) {
+                return if (self.has(Component)) self.getDataPtr(Component).* else null;
+            }
+
+            /// TODO Write doc comments
+            pub fn getPtr(self: *Entity, comptime Component: TagT) ?*Data(Component) {
                 return if (self.has(Component)) self.getDataPtr(Component) else null;
             }
 
@@ -249,7 +254,7 @@ const MathTestSystem = struct {
 
     fn process(sys: *TestManager.System, entity: *TestManager.Entity) void {
         var self = @fieldParentPtr(MathTestSystem, "system", sys);
-        self.result += entity.get(.Integer).?.*;
+        self.result += entity.get(.Integer).?;
     }
 };
 
@@ -261,8 +266,8 @@ test "Creating entities and adding/removing components" {
     entity.add(.Transform);
     try manager.signal(entity);
 
-    var transform = entity.get(.Transform);
-    var got = entity.get(.Transform);
+    var transform = entity.getPtr(.Transform);
+    var got = entity.getPtr(.Transform);
 
     std.testing.expect(entity.has(.Transform));
     std.testing.expectEqual(transform, got);

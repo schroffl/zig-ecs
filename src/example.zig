@@ -60,7 +60,7 @@ const RenderSystem = struct {
         const pos = entity.get(.Transform).?;
         const name = entity.get(.Name).?;
 
-        std.debug.warn("{} is at ({.3}, {.3})\n", name.*, pos.x, pos.y);
+        std.debug.warn("{} is at ({.3}, {.3})\n", name, pos.x, pos.y);
     }
 };
 
