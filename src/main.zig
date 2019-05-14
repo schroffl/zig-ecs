@@ -17,30 +17,52 @@ pub fn Manager(comptime U: type) type {
         /// TODO Write doc comments
         pub const Entity = struct {
             id: EntityId,
-            data: *EntityData,
+            entity_data: *EntityData,
 
-            /// TODO Write doc comments
-            pub fn add(self: *Entity, comptime Tag: TagT) void {
-                return self.data.add(Tag);
+            /// Check whether an entity has a given component attached
+            pub fn has(self: Entity, comptime Component: TagT) bool {
+                return self.entity_data.flags.has(getComponentFlag(Component));
             }
 
-            pub fn set(self: *Entity, comptime Tag: TagT, data: Data(Tag)) void {
-                return self.data.set(Tag, data);
+            /// Attach a given component to an entity.
+            pub fn add(self: *Entity, comptime Component: TagT) void {
+                self.entity_data.add_flags.add(getComponentFlag(Component));
             }
 
-            /// TODO Write doc comments
-            pub fn get(self: *Entity, comptime Tag: TagT) ?*Data(Tag) {
-                return self.data.get(Tag);
+            pub fn set(self: *Entity, comptime Component: TagT, data: Data(Component)) void {
+                self.add(Component);
+                var ptr = self.getDataPtr(Component);
+                ptr.* = data;
             }
 
-            /// TODO Write doc comments
-            pub fn has(self: Entity, comptime Tag: TagT) bool {
-                return self.data.has(Tag);
+            /// Remove a given component from an entity
+            pub fn remove(self: *Entity, comptime Component: TagT) void {
+                self.entity_data.remove_flags.add(getComponentFlag(Component));
             }
 
-            /// TODO Write doc comments
-            pub fn remove(self: *Entity, comptime Tag: TagT) void {
-                return self.data.remove(Tag);
+            /// Get a pointer to the component data of an entity
+            pub fn get(self: *Entity, comptime Component: TagT) ?*Data(Component) {
+                return if (self.has(Component)) self.getDataPtr(Component) else null;
+            }
+
+            fn getComponentFlag(comptime Component: TagT) usize {
+                return @intCast(usize, @enumToInt(Component));
+            }
+
+            fn getDataPtr(self: Entity, comptime Component: TagT) *Data(Component) {
+                const T = Data(Component);
+                const offset = comptime util.DataOffset(Components, Component);
+
+                return @intToPtr(*T, @ptrToInt(&self.entity_data.data[0]) + offset);
+            }
+
+            fn updateFlags(self: Entity) void {
+                var data = self.entity_data;
+
+                EntityData.Flags.unionize(&data.flags, data.add_flags);
+                EntityData.Flags.subtract(&data.flags, data.remove_flags);
+                data.add_flags.empty();
+                data.remove_flags.empty();
             }
         };
 
@@ -93,50 +115,6 @@ pub fn Manager(comptime U: type) type {
                     .data = []u8{0} ** Size,
                 };
             }
-
-            /// Check whether an entity has a given component attached
-            pub fn has(self: *EntityData, comptime Component: TagT) bool {
-                return self.flags.has(getComponentFlag(Component));
-            }
-
-            /// Attach a given component to an entity.
-            pub fn add(self: *EntityData, comptime Component: TagT) void {
-                self.add_flags.add(getComponentFlag(Component));
-            }
-
-            pub fn set(self: *EntityData, comptime Component: TagT, data: Data(Component)) void {
-                self.add(Component);
-                var ptr = self.getDataPtr(Component);
-                ptr.* = data;
-            }
-
-            /// Remove a given component from an entity
-            pub fn remove(self: *EntityData, comptime Component: TagT) void {
-                self.remove_flags.add(getComponentFlag(Component));
-            }
-
-            /// Get a pointer to the component data of an entity
-            pub fn get(self: *EntityData, comptime Component: TagT) ?*Data(Component) {
-                return if (self.has(Component)) self.getDataPtr(Component) else null;
-            }
-
-            fn getComponentFlag(comptime Component: TagT) usize {
-                return @intCast(usize, @enumToInt(Component));
-            }
-
-            fn getDataPtr(self: *EntityData, comptime Component: TagT) *Data(Component) {
-                const T = Data(Component);
-                const offset = comptime util.DataOffset(Components, Component);
-
-                return @intToPtr(*T, @ptrToInt(&self.data[0]) + offset);
-            }
-
-            fn updateFlags(self: *EntityData) void {
-                Flags.unionize(&self.flags, self.add_flags);
-                Flags.subtract(&self.flags, self.remove_flags);
-                self.add_flags.empty();
-                self.remove_flags.empty();
-            }
         };
 
         allocator: *std.mem.Allocator,
@@ -181,7 +159,7 @@ pub fn Manager(comptime U: type) type {
                 while (iterator.next()) |id| {
                     var entity = Entity{
                         .id = id,
-                        .data = self.getEntityData(id),
+                        .entity_data = self.getEntityData(id),
                     };
 
                     interface.processFn(interface, &entity);
@@ -199,12 +177,12 @@ pub fn Manager(comptime U: type) type {
 
             ptr.* = EntityData.init();
 
-            return Entity{ .id = idx, .data = ptr };
+            return Entity{ .id = idx, .entity_data = ptr };
         }
 
         /// TODO Write doc comments
         pub fn signal(self: *Self, entity: Entity) !void {
-            entity.data.updateFlags();
+            entity.updateFlags();
 
             for (self.systems.toSlice()) |*system| {
                 var interface = system.interface;
