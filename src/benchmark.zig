@@ -29,7 +29,7 @@ const TestSystem = struct {
 
     fn process(sys: *Manager.System, entity: *Manager.Entity) void {
         var self = @fieldParentPtr(TestSystem, "system", sys);
-        self.data += entity.get(.Unsigned32).?.*;
+        self.data += entity.get(.Unsigned32).?;
     }
 
     fn filter(sys: *Manager.System, entity: Manager.Entity) bool {
